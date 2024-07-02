@@ -35,8 +35,6 @@ namespace YetAnotherBugTracker.Roles
                 .Include(p => p.Tickets)
                     .ThenInclude(t => t.State)
                 .Include(p => p.Tickets)
-                    .ThenInclude(t => t.Project)
-                .Include(p => p.Tickets)
                     .ThenInclude(t => t.Type)
                 .Include(p => p.Tickets)
                     .ThenInclude(t => t.AssignedUser)

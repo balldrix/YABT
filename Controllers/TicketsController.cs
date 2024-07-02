@@ -319,7 +319,7 @@ namespace YetAnotherBugTracker.Controllers
 
             var viewModel = new TicketsViewModel
             {
-                Ticket = tickets.First(t => t.Id == id),
+                Ticket = tickets.FirstOrDefault(t => t.Id == id),
                 RolePermissions = roleObject.Permissions
             };
             
