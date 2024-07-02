@@ -1,0 +1,79 @@
+﻿@model LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container row text-left">
+    <h1>Login</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Username"></label>
+                <input asp-for="Username" class="form-control" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="custom-checkbox">
+                    <label asp-for="RememberMe">
+                        <input asp-for="RememberMe" />
+                        @Html.DisplayNameFor(m => m.RememberMe)
+                    </label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <h3>Login in as Demo User</h3>
+
+        <br />
+
+        <form method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="Username" value="Demo_Admin" />
+            <input type="hidden" asp-for="Password" value="DemoUserPassword" />
+            <input type="hidden" asp-for="RememberMe" value="false" />
+            <button type="submit" class="btn btn-primary">Admin</button>
+        </form>
+
+        <br />
+
+        <form method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="Username" value="Demo_ProjectManager" />
+            <input type="hidden" asp-for="Password" value="DemoUserPassword" />
+            <input type="hidden" asp-for="RememberMe" value="false" />
+            <button type="submit" class="btn btn-secondary">Project Manager</button>
+        </form>
+
+        <br />
+
+        <form method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="Username" value="Demo_Developer" />
+            <input type="hidden" asp-for="Password" value="DemoUserPassword" />
+            <input type="hidden" asp-for="RememberMe" value="false" />
+            <button type="submit" class="btn btn-info">Developer</button>
+        </form>
+
+        <br />
+
+        <form method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="Username" value="Demo_Stakeholder" />
+            <input type="hidden" asp-for="Password" value="DemoUserPassword" />
+            <input type="hidden" asp-for="RememberMe" value="false" />
+            <button type="submit" class="btn btn-warning">Stakeholder</button>
+        </form>
+    </div>
+</div>

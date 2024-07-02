@@ -1,0 +1,172 @@
+﻿@model ProjectsViewModel
+
+@Html.HiddenFor(m => m.Project.Id)
+
+@{
+    ViewData["Title"] = "Projects";
+}
+
+<div class="container-fluid text-left">
+    <div class="row">
+        <div class="col-md-3">
+            <h1>Projects</h1>
+        </div>
+        <div class="col-md-9">
+            <form method="get" asp-action="Search" asp-route-searchTerm="SearchTerm">
+                <div class="input-group">
+                    <input class="form-control" asp-for="SearchTerm" />
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row mb-2">
+        @if(Model.CanAddProjects)
+        {
+            <div class="col-md-2">
+                <a class="btn btn-success form-control text-white" data-toggle="modal" data-target="#addProject">Add Project</a>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="container-fluid row">
+    @if(Model.Projects.Count() > 0)
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Project Lead</th>
+                    @if(User.IsInRole(DbUtility.Role_Admin) || User.IsInRole(DbUtility.Role_Demo_Admin))
+                    {
+                        <th></th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var project in Model.Projects)
+                {
+                    <tr>
+                        <td style="width: 10%" class="text-left">
+                            @project.Id
+                        </td>
+                        <td class="text-left">
+                            <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id">@project.Name</a>
+                        </td>
+                        <td style="width: 10%" class="text-left">
+                            @if(Model.ProjectLeadOptions.ToList().Count == 0)
+                            {
+                                <p>None</p>
+                            }
+                            else
+                            {
+                                @await Component.InvokeAsync("ProjectLeadDropdown",
+                               new { projectId = project.Id,
+                               projectLeadId = project.ProjectLeadId,
+                               user = User })
+                            }
+                        </td>
+                    @if(User.IsInRole(DbUtility.Role_Admin) || User.IsInRole(DbUtility.Role_Demo_Admin))                        
+                    {
+                            <td style="width: 11%">
+                                <a onclick="setModalFormValue('#modal-rename #projectId', @project.Id)" data-toggle="modal" data-target="#renameProject" class="btn btn-info btn-sm text-white float-left mr-1">Rename</a>
+                                <form method="post">
+                                    <button asp-controller="Projects" asp-action="Delete" asp-route-id="@project.Id" onclick="confirm('Are you sure you want to delete the project?')" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No projects</p>
+    }
+</div>
+
+<!-- add new project Modal -->
+<div class="container">
+    <div class="modal fade" tabindex="-1" id="addProject" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add new Project</h4>
+                    <button type="button" class="close" data-dismiss="modal">
+                        ×
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form asp-controller="Projects" asp-action="AddProject" method="post" class="form-group" id="modal-project">
+                        <div class="row">
+                            <div class="col">
+                                <label asp-for="Project.Name" class="form-check-label ml-2">Project Name</label>
+                            </div>
+                            <div class="col">
+                                <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+                                <input asp-for="Project.Name" class="form-control" type="text" placeholder="" />
+                                <span asp-validation-for="Project.Name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label asp-for="ProjectLeadId" class="form-check-label ml-2">Project Lead</label>
+                            </div>
+                            <div class="col">
+                                <select asp-for="ProjectLeadId" asp-items="@Model.ProjectLeadOptions" class="form-control" type="text" placeholder="Project Name">
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary button button4" form="modal-project">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rename project Modal -->
+<div class="container">
+    <div class="modal fade" tabindex="-1" id="renameProject" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Rename Project</h4>
+                    <button type="button" class="close" data-dismiss="modal">
+                        ×
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form asp-controller="Projects" asp-action="Rename" method="post" class="form-group" id="modal-rename">
+                        <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+                        <input asp-for="Project.Name" class="form-control" type="text" placeholder="new name" />
+                        <span asp-validation-for="Project.Name" class="text-danger"></span>
+                        <input asp-for="Project.Id" id="projectId" type="hidden" value="" />
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary button button4" form="modal-rename">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setModalFormValue(formId, value) {
+        var modal = $(formId);
+        modal.val(value);
+    }
+</script>
+
+<script src="bootstrap/js/bootstrap.min.js"></script>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>

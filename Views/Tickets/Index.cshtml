@@ -1,0 +1,78 @@
+﻿@model TicketsViewModel
+
+@{
+    ViewData["Title"] = "My Tickets";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row text-left">
+        <div class="col-md-3">
+            <h1>Tickets</h1>
+        </div>
+        <div class="col-md-9">
+            <form method="get" asp-action="Search" asp-route-searchTerm="SearchTerm">
+                <div class="input-group">
+                    <input class="form-control" asp-for="SearchTerm"/>
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row text-left">
+        <div class="col-md-2">
+            <a class="btn btn-success form-control text-white " asp-action="Create">Add Ticket</a>
+        </div>
+        <div class="col-md-10">
+            @await Component.InvokeAsync("ProjectFilter", new { user = User } )
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid row mt-4">
+    @if(Model.Tickets.Count() > 0)
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>State</th>
+                    <th>Priority</th>
+                    <th>Project</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var ticket in Model.Tickets)
+                {
+                    <tr>
+                        <td style="width: 10%" class="text-left">
+                            @ticket.Id
+                        </td>
+                        <td class="text-left">
+                            <a asp-action="Details" asp-route-id="@ticket.Id">@ticket.Title</a>
+                        </td>
+                        <td class="text-left">
+                            @ticket.Type.Name
+                        </td>
+                        <td class="text-left">
+                            @ticket.State.Name
+                        </td>
+                        <td class="text-left">
+                            @ticket.Priority.Name
+                        </td>
+                        <td class="text-left">
+                            @ticket.Project.Name
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No tickets</p>
+    }
+</div>

@@ -1,0 +1,83 @@
+﻿@inject SignInManager<ApplicationUser> signInManager;
+@inject UserManager<ApplicationUser> userManager;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] | YABT - Yet Another Bug Tracker</title>
+    <link type="text/css" rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
+    <link type="text/css" rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">YABT</a>
+                @if(signInManager.IsSignedIn(User))
+                {
+                    <div class="dropdown">
+                        <a class="dropdown-toggle btn btn-link" data-toggle="dropdown">
+                            @User.Identity.Name<i class="fas fa-user-circle fa-lg ml-3"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a asp-controller="UserManagement" asp-action="Edit" asp-route-id="@userManager.Users.FirstOrDefault(u => u.UserName == User.Identity.Name).Id" class="dropdown-item-text">Profile</a></li>
+                            <li>
+                                <form asp-controller="Account" asp-action="Logout">
+                                    <button type="submit" class="dropdown-item-text btn btn-link">Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                }
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid h-100">
+        @if(signInManager.IsSignedIn(User))
+        {
+            <div class="row h-100">
+                <div class="col-md-2 bg-light pt-md-5 h-100">
+                    <ul class="nav list-group ">
+                        <li class="nav-item list-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a>
+                            
+                            @if(User.IsInRole(DbUtility.Role_Admin) || User.IsInRole(DbUtility.Role_Demo_Admin))
+                            {
+                                <a class="nav-link text-dark" asp-area="" asp-controller="UserManagement" asp-action="Index">User Management</a>
+                            }
+                            
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Projects" asp-action="Index">My Projects</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Tickets" asp-action="Index">My Tickets</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-10 pt-md-3 h-100">
+                    <main role="main" class="pb-3">
+                        @RenderBody()
+                    </main>
+                </div>
+            </div>
+        }
+        else
+        {
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        }
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2020 - Yet Another Bug Tracker - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

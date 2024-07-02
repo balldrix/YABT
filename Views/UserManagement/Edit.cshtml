@@ -1,0 +1,86 @@
+﻿@model UserManagementViewModel
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<div class="container-fluid row text-left">
+    <div class="col-md-10">
+        <h1>Edit User</h1>
+    </div>
+</div>
+
+<div class="border containter mt-md-4">
+    <form name="edit-user" asp-action="Edit" class="mt-md-4" id="edit-user" method="post">
+        <input type="hidden" asp-for="@Model.UserId" value="@Model.UserId" />
+        <div class="text-danger" asp-validation-summary="All"></div>
+        <div class="form-group row">
+            <div class="col-1">
+                <label asp-for="Username" class="form-check-label ml-2" d-inline">User Name</label>
+            </div>
+            <div class="col-3">
+                <input asp-for="Username" class="form-control w-50 d-inline ml-2" />
+            </div>
+            <div class="col-3">
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-1">
+                <label asp-for="Name" class="form-check-label ml-2" d-inline">Name</label>
+            </div>
+            <div class="col-3">
+                <input asp-for="Name" class="form-control w-50 d-inline ml-2" />
+            </div>
+            <div class="col-3">
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-1">
+                <label asp-for="Email" class="form-check-label ml-2" d-inline">Email Address</label>
+            </div>
+            <div class="col-3">
+                <input asp-for="Email" class="form-control w-50 d-inline ml-2" />
+            </div>
+            <div class="col-3">
+            </div>
+        </div>
+
+        @if(!Model.IsEditRoleHidden)
+        {
+            <div class="form-group row">
+                <div class="col-1">
+                    <label asp-for="RoleId" class="form-check-label ml-2" d-inline">User Role</label>
+                </div>
+                <div class="col-3">
+                    <select type="text" asp-for="RoleId" asp-items="@(new SelectList(@Model.Roles, "Id", "Name", Model.Roles.First(r => r.Id == @Model.RoleId)))" class="form-control w-50 d-inline ml-2"></select>
+                </div>
+            </div>
+        }
+
+        <hr>
+        <div class="form-group row">
+            <div class="col-2">
+                <a asp-action="ResetPassword" asp-controller="Account" asp-route-username="@Model.Username" class="btn btn-danger form-control text-white ml-3">Reset Password</a>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="form-group row">
+            <div class="col-2">
+                <button type="submit" class="btn btn-primary form-control ml-3 mr-3" id="edit-user">Save</button>
+            </div>
+            <div class="col-2">
+                <a asp-action="Index" class="btn btn-danger form-control text-white ml-auto">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

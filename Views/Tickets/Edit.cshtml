@@ -1,0 +1,88 @@
+﻿@model TicketsViewModel
+
+@{
+    ViewData["Title"] = "Edit Ticket";
+}
+
+<div class="container-fluid row text-left">
+    <div class="col-md-10">
+        <h1>Edit Ticket</h1>
+    </div>
+</div>
+
+<div class="border container mt-md-4">
+    <form asp-action="Upsert" method="post" class="mt-md-4" id="create-ticket">
+        <input type="hidden" asp-for="@Model.TicketId" value="@Model.TicketId" />
+        <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+        <div class=" form-group row">
+            <div class="col-6">
+                <input asp-for="Title" placeholder="@Model.Ticket.Title" class="form-text w-100 text-center ml-1" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="col-3">
+                <label asp-for="TypeId" class="form-check-label d-inline ">Ticket Type</label>
+                <select asp-for="TypeId" asp-items="@(new SelectList(Model.ItemTypes, "Id", "Name", Model.ItemTypes.First(m => m.Id == Model.TypeId)))" class="form-control w-auto d-inline ml-1"></select>
+            </div>
+
+            @if(Model.RolePermissions.CanAssignUser)
+            {
+                <div class="col-3">
+                <label asp-for="AssignedUserId" class="form-check-label d-inline ">Assigned User</label>
+                <select asp-for="AssignedUserId" asp-items="@Model.UserOptions" class="form-control w-auto d-inline ml-1"></select>
+                </div>
+            }
+            else
+            {
+                <text>@Model.Ticket.AssignedUser.Name</text>
+            }
+        </div>
+
+        <hr>
+
+        <div class="form-group row">
+            <div class="col-6">
+
+                <label asp-for="StateId" class="form-check-label d-inline ml-1">State</label>
+                <select asp-for="StateId" asp-items="@(new SelectList(Model.StateList, "Id", "Name", Model.StateList.First(m => m.Id == Model.StateId)))" class="form-control w-auto d-inline ml-1"></select>
+
+                <label asp-for="PriorityId" class="form-check-label d-inline">Priority</label>
+                <select asp-for="PriorityId" asp-items="@(new SelectList(Model.Priorities, "Id", "Name", Model.Priorities.First(m => m.Id == Model.PriorityId)))" class="form-control w-auto d-inline ml-1"></select>
+
+            </div>
+            <div class="col-6">
+
+                <label asp-for="ProjectId" class="form-check-label d-inline ml-4">Project</label>
+                <select asp-for="ProjectId" asp-items="@(new SelectList(Model.Projects, "Id", "Name", Model.Projects.First(m => m.Id == Model.ProjectId)))" class="form-control w-auto d-inline ml-1"></select>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="form-group row">
+            <label asp-for="Description" class="form-text-label ml-3">Description</label>
+            <textarea rows="10" asp-for="Description" class="form-text w-100 ml-3 mr-4"></textarea>
+        </div>
+
+        <hr>
+
+        <div class="form-group row">
+            <div class="col-2">
+
+                <button type="submit" class="btn btn-primary form-control ml-3 mr-3" form="create-ticket">Save</button>
+
+            </div>
+            <div class="col-2">
+
+                <a asp-action="Details" asp-route-id="@Model.TicketId" class="btn btn-danger form-control text-white ml-auto">Cancel</a>
+
+            </div>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

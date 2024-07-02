@@ -1,0 +1,20 @@
+﻿@model IEnumerable<Project>
+
+<div class="dropdown text-right float-right">
+    <a asp-controller="Tickets"
+       asp-action="Index"
+       class="btn btn-info dropdown-toggle" data-toggle="dropdown"aria-haspopup="true" aria-expanded="false">Filter by Project</a>
+    <ul class="dropdown-menu">
+        @foreach(var project in Model)
+        {
+            <li>
+                <a class="dropdown-item" asp-controller="Tickets" asp-action="Index"
+                   asp-route-id="@project.Id">@project.Name</a>
+            </li>
+        }
+        <li class="dropdown-divider"></li>
+        <li>
+            <a class="dropdown-item" asp-controller="Tickets" asp-action="Index" asp-route-id="">View all Projects</a>
+        </li>
+    </ul>
+</div>

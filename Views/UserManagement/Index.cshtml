@@ -1,0 +1,57 @@
+﻿@model UserManagementViewModel
+
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<div class="container row text-left">
+    <div class="col-md-10">
+        <h1>User Management</h1>
+    </div>
+    <div class="col-md-2">
+        <a class="btn btn-success form-control text-white" asp-action="Create">Add New User</a>
+    </div>
+</div>
+
+<div class="container-fluid row">
+    @if(Model.Users.Count() > 0)
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Email Address</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var user in Model.Users)
+                {
+                    <tr>
+                        <td style="width:5%" class="text-left">
+                            <a asp-action="Details" asp-route-id="@user.Id" class="text-left">View</a>
+                        </td>
+                        <td class="text-left">
+                            @user.Name
+                        </td>
+                        <td class="text-left">
+                            @user.UserName
+                        </td>
+                        <td class="text-left">
+                            @user.Email
+                        </td>
+                        <td class="text-left">
+                            @user.Role
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No users</p>
+    }
+</div>

@@ -1,0 +1,15 @@
+﻿@model ProjectsViewModel
+
+@if(User.IsInRole(DbUtility.Role_Admin))
+{
+<form asp-action="ChangeLead" class="dropdown text-left">
+    <input type="hidden" asp-for="@Model.Project.Id" value="@Model.Project.Id"/>
+    <input type="hidden" asp-for="@Model.Project.Name" value="@Model.Project.Name"/>
+    <select asp-for="@Model.ProjectLeadId" asp-items="@Model.ProjectLeadOptions" onchange="this.form.submit()" class=" dropdown-item">
+    </select>
+</form>
+}
+else
+{
+    <span>@Model.ProjectLeadOptions.Find(o => o.Selected == true).Text</span>
+}

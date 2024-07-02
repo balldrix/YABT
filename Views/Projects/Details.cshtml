@@ -1,0 +1,157 @@
+﻿@model ProjectsViewModel
+
+@Html.HiddenFor(m => m.Project.Id)
+
+@{
+    ViewData["Title"] = @Model.Project.Name + " Details";
+}
+
+<div class="container-fluid row">
+    <div class="col-md-8 text-left">
+        <h1>@Model.Project.Name</h1>
+    </div>
+    <div class="col-md-4 text-right">
+        <h2>
+            Project Lead:
+            @if(@Model.Project.ProjectLead != null)
+            {
+                @Model.Project.ProjectLead.Name
+            }
+            else
+            {
+                @:None
+            }
+        </h2>
+    </div>
+</div>
+
+<div class="container-fluid mt-3">
+    <div class="row">
+        <div class="col-6">
+            @if(Model.Project.Tickets.Count() > 0)
+            {
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>State</th>
+                            <th>Priority</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var ticket in Model.Project.Tickets)
+                        {
+                            <tr>
+                                <td style="width: 10%" class="text-left">
+                                    @ticket.Id
+                                </td>
+                                <td class="text-left">
+                                    <a asp-controller="Tickets" asp-action="Details" asp-route-id="@ticket.Id">@ticket.Title</a>
+                                </td>
+                                <td class="text-left">
+                                    @ticket.Type.Name
+                                </td>
+                                <td class="text-left">
+                                    @ticket.State.Name
+                                </td>
+                                <td class="text-left">
+                                    @ticket.Priority.Name
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            }
+            else
+            {
+                <p>No tickets</p>
+            }
+            <div class="col-6">
+                <a class="btn btn-success form-control text-white" asp-controller="Tickets" asp-action="Create">Add Ticket</a>
+            </div>
+        </div>
+        <div class="col-6">
+            @if(Model.Project.Members.Count() > 0)
+            {
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Role</th>
+                            @if(Model.CanAmendMembers)
+                            {
+                                <th></th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var member in Model.Project.Members)
+                        {
+                            <tr>
+                                <td style="width: 60%" class="text-left">
+                                    @member.Name
+                                </td>
+                                <td style="width: 30%" class="text-left">
+                                    @member.Role
+                                </td>
+                                @if(Model.CanAmendMembers)
+                                {
+                                    <td>
+                                        <form method="post" asp-action="RemoveMember">
+                                            <input type="hidden" asp-for="@Model.Project.Id" value="@Model.Project.Id" />
+                                            <input type="hidden" asp-for="@Model.MemberId" value="@member.Id" />
+                                            <button type="submit" class="btn btn-info align-items-center">Remove</button>
+                                        </form>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No users assigned</p>
+            }
+
+            @if(Model.CanAmendMembers)
+            {
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Assign Members
+                    </button>
+
+                    <div class="dropdown-menu">
+                        <form method="post" asp-action="AddMembers" class="px-3 py-3">
+                            <input type="hidden" asp-for="@Model.Project.Id" value="@Model.Project.Id" />
+                            <label asp-for="@Model.SelectedMembers" class="form-control-label">Members</label>
+                            <select multiple="multiple" asp-for="@Model.SelectedMembers" asp-items="@Model.MemberOptions" class="form-check"></select>
+                            <div class="dropdown-divider"></div>
+                            <button type="submit" class="btn btn-info">Add</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    $('select').on('click', function (e) {
+        e.stopPropagation();
+    });
+</script>
+
+<script>
+    $('option').mousedown(function (e) {
+        e.preventDefault();
+        jQuery(this).toggleClass('selected');
+
+        jQuery(this).prop('selected', !jQuery(this).prop('selected'));
+        return false;
+    });
+</script>
