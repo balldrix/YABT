@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,29 +18,29 @@ namespace YetAnotherBugTracker.Controllers
 {
     public class TicketsController : Controller
     {
-        private readonly IRepository<Attachment> _attachmentRepository;
         private readonly IWebHostEnvironment _hostingEnvironment;
-        private readonly IRepository<ItemType> _itemTypeRepository;
-        private readonly IRepository<Priority> _priorityRepository;
         private readonly IRoleFactory _roleFactory;
-        private readonly IRepository<State> _stateRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IRepository<ItemType> _itemTypeRepository;
+        private readonly IRepository<State> _stateRepository;
+        private readonly IRepository<Priority> _priorityRepository;
+		private readonly IRepository<Attachment> _attachmentRepository;
 
-        public TicketsController(IRepository<Attachment> attachmentRepository,
-                                 IWebHostEnvironment hostingEnvironment,
-                                 IRepository<ItemType> itemTypeRepository,
-                                 IRepository<Priority> priorityRepository,
+		public TicketsController(IWebHostEnvironment hostingEnvironment,
                                  IRoleFactory roleFactory,
+                                 UserManager<ApplicationUser> userManager,
+                                 IRepository<ItemType> itemTypeRepository,
                                  IRepository<State> stateRepository,
-                                 UserManager<ApplicationUser> userManager)
+                                 IRepository<Priority> priorityRepository,
+                                 IRepository<Attachment> attachmentRepository)
         {
-            _attachmentRepository = attachmentRepository;
             _hostingEnvironment = hostingEnvironment;
-            _itemTypeRepository = itemTypeRepository;
-            _priorityRepository = priorityRepository;
             _roleFactory = roleFactory;
-            _stateRepository = stateRepository;
             _userManager = userManager;
+            _itemTypeRepository = itemTypeRepository;
+            _stateRepository = stateRepository;
+            _priorityRepository = priorityRepository;
+            _attachmentRepository = attachmentRepository;
         }
 
         [HttpPost]
@@ -85,45 +84,47 @@ namespace YetAnotherBugTracker.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddComment(TicketsViewModel viewModel)
-        {
-            if(viewModel.TicketId != null)
-            {
-                var applicationUser = await _userManager.GetUserAsync(User);
-                var roleObject = _roleFactory.GetRole(applicationUser);
+		{
+			if(viewModel.TicketId == null)
+			{
+				return NoContent();
+			}
 
-                var ticket = roleObject.GetTicketsForUserRole(applicationUser)
-                    .First(t => t.Id == viewModel.TicketId);
+			var applicationUser = await _userManager.GetUserAsync(User);
 
-                viewModel.Ticket = ticket;
+			int ticketId = (int)viewModel.TicketId;
+			IRole role = _roleFactory.GetRole(applicationUser);
+			var ticket = role.GetUserTicket(applicationUser, viewModel.TicketId.Value);
 
-                var comment = new Comment
-                {
-                    Date = DateAndTime.Now,
-                    TextComment = viewModel.TextComment,
-                    User = await _userManager.FindByNameAsync(User.Identity.Name)
-                };
+			viewModel.Ticket = ticket;
 
-                ticket.Comments.Add(comment);
-                roleObject.UpdateTicket(ticket);
+			var comment = new Comment
+			{
+				Date = DateAndTime.Now,
+				TextComment = viewModel.TextComment,
+				User = applicationUser
+			};
 
-                return RedirectToAction("Details", new { id = viewModel.Ticket.Id });
-            }
+            ticket.Comments.Add(comment);
+            role.UpdateTicket(ticket);
 
-            return NoContent();
-        }
+			return RedirectToAction("Details", new { id = viewModel.Ticket.Id });
+		}
 
-        [HttpGet]
+		[HttpGet]
         [Authorize]
         public async Task<IActionResult> Index(int? id)
         {
             var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
+            var role = _roleFactory.GetRole(currentUser);
 
             var viewModel = new TicketsViewModel()
             {
                 Priorities = _priorityRepository.AllItems,
                 ItemTypes = _itemTypeRepository.AllItems,
-                StateList = _stateRepository.AllItems
+                StateList = _stateRepository.AllItems,
             };
 
             var applicationUser = await _userManager.GetUserAsync(User);
@@ -133,13 +134,16 @@ namespace YetAnotherBugTracker.Controllers
 
             if(id == null)
             {
-                viewModel.Tickets = roleObject.GetTicketsForUserRole(applicationUser).OrderBy(t => t.PriorityID);
+                viewModel.Tickets = roleObject.GetTicketsForUserRole(applicationUser)
+											  .OrderBy(t => t.PriorityID)
+											  .ToList();
             }
             else
             {
                 viewModel.Tickets = roleObject.GetTicketsForUserRole(applicationUser)
-                .OrderBy(t => t.PriorityID)
-                .Where(t => t.ProjectID == id);
+											  .OrderBy(t => t.PriorityID)
+											  .Where(t => t.ProjectID == id)
+											  .ToList();
             }
 
             return View(viewModel);
@@ -303,7 +307,9 @@ namespace YetAnotherBugTracker.Controllers
 
             var viewModel = new TicketsViewModel
             {
-                Tickets = roleObject.SearchUserTickets(applicationUser, searchTerm).OrderBy(t => t.PriorityID)
+                Tickets = roleObject.SearchUserTickets(applicationUser, searchTerm)
+									.OrderBy(t => t.PriorityID)
+									.ToList()
             };
 
             return View("Index", viewModel);
@@ -315,11 +321,11 @@ namespace YetAnotherBugTracker.Controllers
         {
             var applicationUser = await _userManager.GetUserAsync(User);
             var roleObject = _roleFactory.GetRole(applicationUser);
-            var tickets = roleObject.GetTicketsForUserRole(applicationUser).OrderBy(t => t.PriorityID);
+            var ticket = roleObject.GetUserTicket(applicationUser, id);            
 
             var viewModel = new TicketsViewModel
             {
-                Ticket = tickets.FirstOrDefault(t => t.Id == id),
+                Ticket = ticket,
                 RolePermissions = roleObject.Permissions
             };
             
@@ -376,7 +382,7 @@ namespace YetAnotherBugTracker.Controllers
             var roleObject = _roleFactory.GetRole(applicationUser);
 
             var projects = roleObject.GetProjectsForUserRole(applicationUser);
-            var tickets = roleObject.GetTicketsForUserRole(applicationUser).OrderBy(t => t.PriorityID);
+            var tickets = roleObject.GetTicketsForUserRole(applicationUser).OrderBy(t => t.PriorityID).ToList();
 
             var ticket = tickets.First(p => p.Id == id);
 
@@ -408,7 +414,7 @@ namespace YetAnotherBugTracker.Controllers
 
                 foreach(var option in viewModel.UserOptions)
                 {
-                    if(option.Value == ticket.AssignedUserID)
+                    if(option.Value == ticket.AssignedUserId)
                     {
                         option.Selected = true;
                     }

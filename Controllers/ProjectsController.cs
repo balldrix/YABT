@@ -141,7 +141,6 @@ namespace YetAnotherBugTracker.Controllers
         {
             var applicationUser = await _userManager.GetUserAsync(User);
             var roleObject = _roleFactory.GetRole(applicationUser);
-
             var project = roleObject.GetUserProject(applicationUser, id);
 
             foreach(var member in project.Members)

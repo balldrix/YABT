@@ -6,15 +6,14 @@ using YetAnotherBugTracker.Utility;
 
 namespace YetAnotherBugTracker.Roles
 {
-    public class DemoDeveloper : IRole
+	public class DemoDeveloper : IRole
     {
-        private readonly DemoDbContext _demoDbContext;
-
+        private readonly AppDbContext _appDbContext;
         public RolePermissions Permissions { get; set; }
 
-        public DemoDeveloper(DemoDbContext demoDbContext)
+		public DemoDeveloper(AppDbContext appDbContext)
         {
-            _demoDbContext = demoDbContext;
+            _appDbContext = appDbContext;
 
             Permissions = new RolePermissions()
             {
@@ -24,9 +23,9 @@ namespace YetAnotherBugTracker.Roles
             };
         }
 
-        public IEnumerable<Project> GetProjectsForUserRole(ApplicationUser user)
+        public ICollection<Project> GetProjectsForUserRole(ApplicationUser user)
         {
-            return _demoDbContext.Project
+            return _appDbContext.Project
                 .Include(p => p.Author)
                 .Include(p => p.ProjectLead)
                 .Include(p => p.Members)
@@ -41,12 +40,12 @@ namespace YetAnotherBugTracker.Roles
                 .Include(p => p.Tickets)
                     .ThenInclude(t => t.Comments)
                     .ThenInclude(c => c.User)
-                .Where(p => p.Members.Contains(user));
+                .Where(p => p.Members.Contains(user)).ToList();
         }
 
-        public IEnumerable<Ticket> GetTicketsForUserRole(ApplicationUser user)
+        public ICollection<Ticket> GetTicketsForUserRole(ApplicationUser user)
         {
-            return _demoDbContext.Ticket
+            return _appDbContext.Ticket
                 .Include(ticket => ticket.Author)
                 .Include(ticket => ticket.Priority)
                 .Include(ticket => ticket.State)
@@ -58,7 +57,7 @@ namespace YetAnotherBugTracker.Roles
                 .Include(ticket => ticket.Attachments)
                     .ThenInclude(a => a.User)
                 .AsQueryable()
-                .Where(Predicates.DeveloperTickets(user));
+                .Where(Predicates.DeveloperTickets(user)).ToList();
         }
 
         public void AddNewProject(Project project)
@@ -80,23 +79,23 @@ namespace YetAnotherBugTracker.Roles
 
         public void UpdateProject(Project project)
         {
-            _demoDbContext.Project.Update(project);
-            _demoDbContext.SaveChanges();
+            _appDbContext.Project.Update(project);
+            _appDbContext.SaveChanges();
         }
 
         public void DeleteUserProject(ApplicationUser user, int id)
         {
-            _demoDbContext.Project.Remove(GetUserProject(user, id));
-            _demoDbContext.SaveChanges();
+            _appDbContext.Project.Remove(GetUserProject(user, id));
+            _appDbContext.SaveChanges();
         }
 
         public void DeleteUserTicket(ApplicationUser user, int id)
         {
-            _demoDbContext.Ticket.Remove(GetUserTicket(user, id));
-            _demoDbContext.SaveChanges();
+            _appDbContext.Ticket.Remove(GetUserTicket(user, id));
+            _appDbContext.SaveChanges();
         }
 
-        public IEnumerable<Project> SearchUserProjects(ApplicationUser user,
+        public ICollection<Project> SearchUserProjects(ApplicationUser user,
                                                string searchTerm)
         {
             return GetProjectsForUserRole(user)
@@ -106,10 +105,11 @@ namespace YetAnotherBugTracker.Roles
                (p.ProjectLead != null && p.ProjectLead.Name.Contains(searchTerm,
                System.StringComparison.OrdinalIgnoreCase)) ||
                p.Name.Contains(searchTerm,
-               System.StringComparison.OrdinalIgnoreCase));
+               System.StringComparison.OrdinalIgnoreCase))
+                .ToList();
         }
 
-        public IEnumerable<Ticket> SearchUserTickets(ApplicationUser user, string searchTerm)
+        public ICollection<Ticket> SearchUserTickets(ApplicationUser user, string searchTerm)
         {
             return GetTicketsForUserRole(user)
                 .Where(t =>
@@ -126,19 +126,20 @@ namespace YetAnotherBugTracker.Roles
                 (t.Title != null && t.Title.Contains(searchTerm,
                     System.StringComparison.OrdinalIgnoreCase)) ||
                 t.Id.ToString().Contains(searchTerm,
-                    System.StringComparison.OrdinalIgnoreCase));
+                    System.StringComparison.OrdinalIgnoreCase))
+                .ToList();
         }
 
         public void UpdateTicket(Ticket ticket)
         {
-            _demoDbContext.Ticket.Update(ticket);
-            _demoDbContext.SaveChanges();
+            _appDbContext.Ticket.Update(ticket);
+            _appDbContext.SaveChanges();
         }
 
         public void AddNewTicket(Ticket newTicket)
         {
-            _demoDbContext.Ticket.Add(newTicket);
-            _demoDbContext.SaveChanges();
+            _appDbContext.Ticket.Add(newTicket);
+            _appDbContext.SaveChanges();
         }
-    }
+	}
 }

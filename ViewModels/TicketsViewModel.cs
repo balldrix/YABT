@@ -26,11 +26,11 @@ namespace YetAnotherBugTracker.ViewModels
         public string Title { get; set; }
         public int TypeId { get; set; }
 
-        public IEnumerable<ItemType> ItemTypes { get; set; }
-        public IEnumerable<Priority> Priorities { get; set; }
-        public IEnumerable<Project> Projects { get; set; }
-        public IEnumerable<State> StateList { get; set; }
-        public IEnumerable<Ticket> Tickets { get; set; }
+        public ICollection<ItemType> ItemTypes { get; set; }
+        public ICollection<Priority> Priorities { get; set; }
+        public ICollection<Project> Projects { get; set; }
+        public ICollection<State> StateList { get; set; }
+        public ICollection<Ticket> Tickets { get; set; }
         public List<SelectListItem> UserOptions { get; set; }
     }
 }

@@ -8,9 +8,8 @@ namespace YetAnotherBugTracker.Roles
 {
     public class ProjectManager : IRole
     {
-        public RolePermissions Permissions { get; set; }
-
         private readonly AppDbContext _appDbContext;
+        public RolePermissions Permissions { get; set; }
 
         public ProjectManager(AppDbContext appDbContext)
         {
@@ -24,7 +23,7 @@ namespace YetAnotherBugTracker.Roles
             };
         }
 
-        public IEnumerable<Project> GetProjectsForUserRole(ApplicationUser user)
+        public ICollection<Project> GetProjectsForUserRole(ApplicationUser user)
         {
             return _appDbContext.Project
                 .Include(p => p.Author)
@@ -35,8 +34,6 @@ namespace YetAnotherBugTracker.Roles
                 .Include(p => p.Tickets)
                     .ThenInclude(t => t.State)
                 .Include(p => p.Tickets)
-                    .ThenInclude(t => t.Project)
-                .Include(p => p.Tickets)
                     .ThenInclude(t => t.Type)
                 .Include(p => p.Tickets)
                     .ThenInclude(t => t.AssignedUser)
@@ -44,10 +41,11 @@ namespace YetAnotherBugTracker.Roles
                     .ThenInclude(t => t.Comments)
                     .ThenInclude(c => c.User)
                 .AsQueryable()
-                .Where(Predicates.ProjectManagerProjects(user));
+                .Where(Predicates.ProjectManagerProjects(user))
+                .ToList();
         }
 
-        public IEnumerable<Ticket> GetTicketsForUserRole(ApplicationUser user)
+        public ICollection<Ticket> GetTicketsForUserRole(ApplicationUser user)
         {
             return _appDbContext.Ticket
                 .Include(ticket => ticket.Author)
@@ -61,7 +59,8 @@ namespace YetAnotherBugTracker.Roles
                 .Include(ticket => ticket.Attachments)
                     .ThenInclude(a => a.User)
                 .AsQueryable()
-                .Where(Predicates.ProjectManagerTickets(user));
+                .Where(Predicates.ProjectManagerTickets(user))
+                .ToList();
         }
 
         public void AddNewProject(Project project)
@@ -100,7 +99,7 @@ namespace YetAnotherBugTracker.Roles
             _appDbContext.SaveChanges();
         }
 
-        public IEnumerable<Project> SearchUserProjects(ApplicationUser user,
+        public ICollection<Project> SearchUserProjects(ApplicationUser user,
                                                string searchTerm)
         {
             return GetProjectsForUserRole(user)
@@ -110,10 +109,11 @@ namespace YetAnotherBugTracker.Roles
                (p.ProjectLead != null && p.ProjectLead.Name.Contains(searchTerm,
                System.StringComparison.OrdinalIgnoreCase)) ||
                p.Name.Contains(searchTerm,
-               System.StringComparison.OrdinalIgnoreCase));
+               System.StringComparison.OrdinalIgnoreCase))
+                .ToList();
         }
 
-        public IEnumerable<Ticket> SearchUserTickets(ApplicationUser user, string searchTerm)
+        public ICollection<Ticket> SearchUserTickets(ApplicationUser user, string searchTerm)
         {
             return GetTicketsForUserRole(user)
                 .Where(t =>
@@ -130,7 +130,8 @@ namespace YetAnotherBugTracker.Roles
                 (t.Title != null && t.Title.Contains(searchTerm,
                     System.StringComparison.OrdinalIgnoreCase)) ||
                 t.Id.ToString().Contains(searchTerm,
-                    System.StringComparison.OrdinalIgnoreCase));
+                    System.StringComparison.OrdinalIgnoreCase))
+                .ToList();
         }
 
         public void UpdateTicket(Ticket ticket)
@@ -144,5 +145,5 @@ namespace YetAnotherBugTracker.Roles
             _appDbContext.Ticket.Add(newTicket);
             _appDbContext.SaveChanges();
         }
-    }
+	}
 }

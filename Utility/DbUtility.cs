@@ -36,9 +36,9 @@ namespace YetAnotherBugTracker.Utility
 
         public static async Task<IList<ApplicationUser>> GetProjectManagers(UserManager<ApplicationUser> userManager)
         {
-            var projectManagers = await userManager.GetUsersInRoleAsync(DbUtility.Role_Project_Manager);
+            var projectManagers = await userManager.GetUsersInRoleAsync(Role_Project_Manager);
 
-            var demoProjectManager = userManager.Users.First(u => u.UserName == "Demo_ProjectManager");
+            var demoProjectManager = userManager.Users.First(u => u.UserName.Equals(Role_Project_Manager));
             projectManagers.Add(demoProjectManager);
             return projectManagers;
         }

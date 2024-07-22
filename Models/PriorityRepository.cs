@@ -1,82 +1,50 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace YetAnotherBugTracker.Models
 {
     public class PriorityRepository : IRepository<Priority>
     {
         private readonly AppDbContext _appDbContext;
-        private readonly DbSet<Priority> _dbSet;
 
-        public IEnumerable<Priority> AllItems => _appDbContext.Priority;
-
-        public IEnumerable<Priority> DemoItems => throw new System.NotImplementedException();
+        public ICollection<Priority> AllItems => _appDbContext.Priority.ToList();
 
         public PriorityRepository(AppDbContext appDbContext)
         {
             _appDbContext = appDbContext;
-            _dbSet = _appDbContext.Priority;
         }
 
         public void Add(Priority item)
         {
-            _dbSet.Add(item);
+			_appDbContext.Add(item);
         }
 
         public void Delete(int id)
         {
-            var priority = _dbSet.Find(id);
-            _dbSet.Remove(priority);
+            var priority = _appDbContext.Priority.Find(id);
+			_appDbContext.Remove(priority);
         }
 
         public Priority Get(int id)
         {
-            return _dbSet.Find(id);
+            return _appDbContext.Priority.Find(id);
         }
 
         public void Update(Priority item)
         {
-            _dbSet.Update(item);
+			_appDbContext.Update(item);
         }
 
-        public IEnumerable<Priority> Search(string searchTerm)
+        public ICollection<Priority> Search(string searchTerm)
         {
-            throw new System.NotImplementedException();
-        }
+			return AllItems.Where(a => a.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+				.ToList();
+		}
 
         public void Save()
         {
             _appDbContext.SaveChanges();
-        }
-
-        public void DemoSave()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void DemoDelete(int id)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void DemoAdd(Priority project)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Priority DemoGet(int id)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IEnumerable<Priority> DemoSearch(string searchTerm)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void DemoUpdate(Priority project)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

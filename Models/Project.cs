@@ -26,7 +26,9 @@ namespace YetAnotherBugTracker.Models
         public ICollection<Ticket> Tickets { get; set; }
 
         [ForeignKey("Author")]
-        public string AuthorId { get; set; }
+		[DatabaseGenerated(DatabaseGeneratedOption.None)]
+
+		public string AuthorId { get; set; }
 
         [DisplayName("Author")]
         public ApplicationUser Author { get; set; }

@@ -39,8 +39,8 @@ namespace YetAnotherBugTracker.Models
 
         public string Description { get; set; }
 
-        [ForeignKey("AssignedUserID")]
-        public string AssignedUserID { get; set; }
+        [ForeignKey("AssignedUser")]
+        public string AssignedUserId { get; set; }
         
         public ApplicationUser AssignedUser { get; set; }
 
@@ -48,7 +48,8 @@ namespace YetAnotherBugTracker.Models
         public ICollection<Comment> Comments { get; set; }
 
         [ForeignKey("Author")]
-        public string AuthorId { get; set; }
+		[DatabaseGenerated(DatabaseGeneratedOption.None)]
+		public string AuthorId { get; set; }
 
         [DisplayName("Author")]
         public ApplicationUser Author { get; set; }

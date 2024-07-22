@@ -5,7 +5,7 @@ namespace YetAnotherBugTracker.ViewModels
 {
     public class HomeViewModel
     {
-        public IEnumerable<Project> Projects { get; set; }
-        public IEnumerable<Ticket> Tickets { get; set; }
+        public ICollection<Project> Projects { get; set; }
+        public ICollection<Ticket> Tickets { get; set; }
     }
 }

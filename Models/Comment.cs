@@ -14,10 +14,11 @@ namespace YetAnotherBugTracker.Models
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
 
-        [ForeignKey("User")]
-        public string UserId { get; set; }
+		[Required]
+		public Ticket Ticket { get; set; }
 
-        [Required]
+		[Required]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)] 
         public ApplicationUser User { get; set; }
 
         [Required]
