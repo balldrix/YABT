@@ -12,7 +12,7 @@ using YetAnotherBugTracker.Models;
 namespace YetAnotherBugTracker.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240806085621_Initial")]
+    [Migration("20240806161104_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -24,6 +24,21 @@ namespace YetAnotherBugTracker.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ApplicationUserProject", b =>
+                {
+                    b.Property<string>("MembersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ProjectsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("MembersId", "ProjectsId");
+
+                    b.HasIndex("ProjectsId");
+
+                    b.ToTable("ApplicationUserProject");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -203,9 +218,6 @@ namespace YetAnotherBugTracker.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Role")
                         .HasColumnType("nvarchar(max)");
 
@@ -228,8 +240,6 @@ namespace YetAnotherBugTracker.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.HasIndex("ProjectId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -509,6 +519,21 @@ namespace YetAnotherBugTracker.Migrations
                     b.ToTable("Ticket");
                 });
 
+            modelBuilder.Entity("ApplicationUserProject", b =>
+                {
+                    b.HasOne("YetAnotherBugTracker.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("MembersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("YetAnotherBugTracker.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -558,13 +583,6 @@ namespace YetAnotherBugTracker.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("YetAnotherBugTracker.Models.ApplicationUser", b =>
-                {
-                    b.HasOne("YetAnotherBugTracker.Models.Project", null)
-                        .WithMany("Members")
-                        .HasForeignKey("ProjectId");
                 });
 
             modelBuilder.Entity("YetAnotherBugTracker.Models.Attachment", b =>
@@ -669,8 +687,6 @@ namespace YetAnotherBugTracker.Migrations
 
             modelBuilder.Entity("YetAnotherBugTracker.Models.Project", b =>
                 {
-                    b.Navigation("Members");
-
                     b.Navigation("Tickets");
                 });
 

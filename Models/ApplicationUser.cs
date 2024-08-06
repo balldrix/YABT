@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace YetAnotherBugTracker.Models
 {
@@ -7,5 +7,6 @@ namespace YetAnotherBugTracker.Models
     {
         public string Name { get; set; }
         public string Role { get; set; }
+        public ICollection<Project> Projects { get; set; } = [];
     }
 }

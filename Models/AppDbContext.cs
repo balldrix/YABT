@@ -19,7 +19,17 @@ namespace YetAnotherBugTracker.Models
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.SeedData();
+            modelBuilder.Entity<Project>()
+                .HasMany(e => e.Members)
+                .WithMany(e => e.Projects);
+
+            modelBuilder.Entity<Project>()
+                .HasOne(e => e.Author);
+
+			modelBuilder.Entity<Project>()
+	            .HasOne(e => e.ProjectLead);
+
+			modelBuilder.SeedData();
         }
     }
 }

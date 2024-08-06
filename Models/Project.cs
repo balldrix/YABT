@@ -20,17 +20,13 @@ namespace YetAnotherBugTracker.Models
         public ApplicationUser ProjectLead { get; set; }
 
         [DisplayName("Team Members")]
-        public List<ApplicationUser> Members { get; set; }
+        public ICollection<ApplicationUser> Members { get; set; } = [];
 
-        [DisplayName("Tickets")]
-        public ICollection<Ticket> Tickets { get; set; }
+        public ICollection<Ticket> Tickets { get; set; } = [];
 
         [ForeignKey("Author")]
-		[DatabaseGenerated(DatabaseGeneratedOption.None)]
-
 		public string AuthorId { get; set; }
 
-        [DisplayName("Author")]
         public ApplicationUser Author { get; set; }
     }
 }

@@ -21,14 +21,12 @@ namespace YetAnotherBugTracker.Models
         public string Filename { get; set; }
 
         [ForeignKey("Ticket")]
-		[DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int TicketId { get; set; }
 
         [Required]
         public Ticket Ticket { get; set; }
 
         [ForeignKey("User")]
-		[DatabaseGenerated(DatabaseGeneratedOption.None)]
 		public string UserId { get; set; }
 
         [Required]
