@@ -12,8 +12,8 @@ using YetAnotherBugTracker.Models;
 namespace YetAnotherBugTracker.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240722161258_Initialize")]
-    partial class Initialize
+    [Migration("20240806085621_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -205,6 +205,9 @@ namespace YetAnotherBugTracker.Migrations
 
                     b.Property<int?>("ProjectId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Role")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");

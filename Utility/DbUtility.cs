@@ -38,8 +38,11 @@ namespace YetAnotherBugTracker.Utility
         {
             var projectManagers = await userManager.GetUsersInRoleAsync(Role_Project_Manager);
 
-            var demoProjectManager = userManager.Users.First(u => u.UserName.Equals(Role_Project_Manager));
-            projectManagers.Add(demoProjectManager);
+            var demoProjectManager = userManager.Users.FirstOrDefault(u => u.Name.Equals(Role_Demo_Project_Mananger));
+            
+            if(demoProjectManager != null)
+                projectManagers.Add(demoProjectManager);
+
             return projectManagers;
         }
     }
