@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace YetAnotherBugTracker.Models
 {
@@ -23,13 +24,15 @@ namespace YetAnotherBugTracker.Models
                 .HasMany(e => e.Members)
                 .WithMany(e => e.Projects);
 
-            modelBuilder.Entity<Project>()
+			modelBuilder.Entity<Project>()
                 .HasOne(e => e.Author);
 
 			modelBuilder.Entity<Project>()
 	            .HasOne(e => e.ProjectLead);
 
 			modelBuilder.SeedData();
+
+            
         }
     }
 }

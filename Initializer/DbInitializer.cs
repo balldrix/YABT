@@ -80,6 +80,7 @@ namespace YetAnotherBugTracker.Initializer
 		{
 			RemoveDemoTickets(dbContext);
 			RemoveDemoProject(dbContext);
+			dbContext.SaveChanges();
 		}
 
 		private void RemoveDemoTickets(DbContext dbContext)
