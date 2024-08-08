@@ -75,8 +75,8 @@ namespace YetAnotherBugTracker.Controllers
                 var project = new Project
                 {
                     Name = projectViewModel.Project.Name,
-                    ProjectLead = _userManager.Users.Single(p => p.Id == projectViewModel.ProjectLeadId),
-                    Author = _userManager.Users.First(u => u.UserName == User.Identity.Name)
+                    ProjectLead = _userManager.Users.FirstOrDefault(p => p.Id == projectViewModel.ProjectLeadId),
+                    Author = _userManager.Users.FirstOrDefault(u => u.UserName == User.Identity.Name)
                 };
 
                 var applicationUser = await _userManager.GetUserAsync(User);
@@ -152,7 +152,8 @@ namespace YetAnotherBugTracker.Controllers
             var viewModel = new ProjectsViewModel
             {
                 Project = project,
-                CanAmendMembers = true
+                CanAmendMembers = true,
+                ProjectLeadId = project.ProjectLeadId
             };
 
             if(User.IsInRole(DbUtility.Role_Stakeholder) ||
@@ -163,25 +164,42 @@ namespace YetAnotherBugTracker.Controllers
                 viewModel.CanAmendMembers = false;
             }
 
-            var options = _userManager.Users
+            var projectManagers = await DbUtility.GetProjectManagers(_userManager);
+            viewModel.ProjectLeadOptions = projectManagers
                 .Select(u => new SelectListItem
                 {
                     Value = u.Id,
-                    Text = u.Name
+                    Text = u.Name,
+                    Selected = project.ProjectLeadId == u.Id
+                })
+                .ToList();
+
+            viewModel.ProjectLeadOptions.Add(new SelectListItem
+            {
+                Value = null,
+                Text = "None",
+                Selected = project.ProjectLeadId == null
+            });
+
+            var memberOptions = _userManager.Users
+                .Select(u => new SelectListItem
+                {
+                    Value = u.Id,
+                    Text = u.Name,
                 }).ToList();
 
-            foreach(var option in options.ToArray())
+            foreach(var option in memberOptions.ToArray())
             {
                 foreach(var member in viewModel.Project.Members)
                 {
                     if(option.Value == member.Id)
                     {
-                        options.Remove(option);
+                        memberOptions.Remove(option);
                     }
                 }
             }
 
-            viewModel.MemberOptions = new MultiSelectList(options, "Value", "Text", viewModel.SelectedMembers = new string[options.Count]);
+            viewModel.MemberOptions = new MultiSelectList(memberOptions, "Value", "Text", viewModel.SelectedMembers = new string[memberOptions.Count]);
 
             return View(viewModel);
         }
@@ -243,6 +261,26 @@ namespace YetAnotherBugTracker.Controllers
             viewModel.Projects = roleObject.SearchUserProjects(currentUser, searchTerm);
 
             return View("Index", viewModel);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = $"{DbUtility.Role_Admin}, {DbUtility.Role_Demo_Admin}")]
+        public async Task<IActionResult> UpdateProjectLead(ProjectsViewModel viewModel)
+        {
+            var projectId = viewModel.Project.Id;
+            var applicationUser = await _userManager.GetUserAsync(User);
+            var roleObject = _roleFactory.GetRole(applicationUser);
+            var project = roleObject.GetUserProject(applicationUser, projectId);
+
+            if(project.ProjectLeadId != viewModel.ProjectLeadId)
+            {
+                project.ProjectLeadId = viewModel.ProjectLeadId;
+                roleObject.UpdateProject(project);
+            }
+
+            viewModel.Project = project;
+                            
+            return RedirectToAction("Details", new { id = viewModel.Project.Id });
         }
     }
 }

@@ -13,6 +13,15 @@
     <div class="col-md-4 text-right">
         <h2>
             Project Lead:
+        </h2>
+        @if(User.IsInRole(DbUtility.Role_Admin) || User.IsInRole(DbUtility.Role_Demo_Admin)) {
+            <form asp-action="UpdateProjectLead" method="post">
+            <input asp-for="Project.Id" id="projectId" type="hidden" value=@Model.Project.Id />
+                <select asp-for="ProjectLeadId" asp-items="Model.ProjectLeadOptions" id="ProjectLeadId" name="ProjectLeadId" onchange="this.form.submit()">
+            </select>
+            </form>
+        } else {
+        <h2>
             @if(@Model.Project.ProjectLead != null)
             {
                 @Model.Project.ProjectLead.Name
@@ -22,6 +31,7 @@
                 @:None
             }
         </h2>
+        }
     </div>
 </div>
 
